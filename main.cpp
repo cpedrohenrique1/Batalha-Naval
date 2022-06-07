@@ -5,7 +5,7 @@ int main(){
     setlocale(LC_ALL, "");
     int i,j,submarinos,x;
 
-    // inicio do programa
+    // inicio do programa, ler quantos submarinos terá
     cout << "                       BATALHA NAVAL\n";
     cout << "Informe o número de submarinos (de 1 a 20)\n";
     cin >> submarinos;
@@ -17,10 +17,10 @@ int main(){
     system("clear");
 
     // reset matriz
-    int matriz[15][15];
-    char caracteres[15][15];
-    for (i=1; i<15; i++){
-        for (j=1; j<15; j++){
+    int matriz[14][14];
+    char caracteres[14][14];
+    for (i=0; i<14; i++){
+        for (j=0; j<14; j++){
             matriz[i][j]=0;
             caracteres[i][j]='_';
         }
@@ -42,14 +42,14 @@ int main(){
     }
     // linhas
     int linha=1;
-    for (x=1; x<15; x++,linha++){
+    for (x=0; x<14; x++){
         i=0;
         if (linha<10){
         cout << linha << "  ";
         }else{
             cout << linha << " ";
         }
-        while (i<15){
+        while (i<14){
             if (i<9){
                 cout << caracteres[x][i] << " ";
             }else{
@@ -58,7 +58,9 @@ int main(){
             i++;
         }
         cout << "\n";
+        linha++;
     }
+// insert usuario
         cout << "Digite a casa onde deseja colocar um submarino\n";
         cout << "Linha: ";
         cin >> i;
@@ -72,8 +74,8 @@ int main(){
             cout << "Número inválido, tente novamente: ";
             cin >> j;
         }
-        matriz[i][j]=1;
-        caracteres[i][j]='*';
+        matriz[i-1][j-1]=1;
+        caracteres[i-1][j-1]='*';
         submarinos--;
         system("cls");
         system("clear");
