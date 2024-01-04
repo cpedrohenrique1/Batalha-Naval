@@ -23,11 +23,8 @@ public:
             for (int i = 0; i < tamanho; i++)
             {
                 this->matriz[i] = new char[tamanho];
-                for (int j = 0; j < tamanho; j++)
-                {
-                    this->matriz[i][j] = '_';
-                }
             }
+            resetMatriz();
         }catch(std::bad_alloc&){
             throw std::string("Memoria insuficiente");
         }
@@ -44,10 +41,43 @@ public:
         {
             throw std::string("Posicao invalida");
         }
+        if (matriz[linha][coluna] != '_'){
+            throw std::string("Ja possui um elemento nesta coordenada");
+        }
         matriz[linha][coluna] = simbolo;
     }
     int getTamanho()const{
         return tamanho;
+    }
+    void resetMatriz(){
+        if (matriz && tamanho){
+            for (int i = 0; i < tamanho; ++i){
+                for (int j = 0; j < tamanho; ++j){
+                    matriz[i][j] = '_';
+                }
+            }
+        }
+    }
+    void resetMatriz(int tamanho){
+        if (tamanho <= 0){
+            throw std::string("tamanho invalido");
+        }
+        if (matriz){
+            for (int i = 0; i < this->tamanho; ++i){
+                delete[] this->matriz[i];
+            }
+            delete [] this->matriz;
+        }
+        try{
+            this->tamanho = tamanho;
+            matriz = new char*[tamanho];
+            for (int i = 0; i < tamanho; ++i){
+                matriz[i] = new char[tamanho];
+            }
+            resetMatriz();
+        }catch(std::bad_alloc& e){
+            throw std::string("erro ao alocar memoria");
+        }
     }
     ~CampoDeBatalha()
     {
