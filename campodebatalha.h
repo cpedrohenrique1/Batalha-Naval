@@ -46,7 +46,7 @@ public:
         if (matriz[linha][coluna] != '_'){
             throw std::string("Ja possui um elemento nesta coordenada");
         }
-        if (matriz[linha][coluna] == '*'){
+        if (simbolo == '*'){
             --quantidade_elementos;
         }
         ++quantidade_elementos;

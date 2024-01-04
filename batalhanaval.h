@@ -63,6 +63,11 @@ public:
             std::cout << std::endl;
         }
     }
+    void desistir(){
+        limparConsole();
+        std::cout << "Desistiu? esse era o campo de batalha:\n";
+        desenharMatriz(campo_setado);
+    }
     int lerQuantidade(std::string entrada)
     {
         std::cout << "Insira a quantidade de " + entrada << ": ";
@@ -80,7 +85,6 @@ public:
         }
         return coordenada;
     }
-
     void setSubmarinos(int submarino)
     {
         if (submarino < 0)
@@ -105,6 +109,23 @@ public:
         }
         this->cruzares = cruzados;
     }
+    void inserirMapa(std::string entrada, int quantidade, char simbolo){
+        if (!campo_setado){
+            throw std::string("campo nao setado");
+        }
+        int linha, coluna;
+        for (int i = 0; i < quantidade; ++i){
+            limparConsole();
+            desenharMatriz(campo_setado);
+            std::cout << "Insira a linha do " << entrada << ' ' << i + 1 << ": ";
+            linha = lerCoordenadas();
+            std::cout << "Insira a coluna do " << entrada << ' ' << i + 1 << ": ";
+            coluna = lerCoordenadas();
+            --linha;
+            --coluna;
+            campo_setado->setMatriz(linha, coluna, simbolo);
+        }
+    }
     void jogar()
     {
         if (!campo_setado){
@@ -115,37 +136,9 @@ public:
         setSubmarinos(lerQuantidade("Submarinos"));
         setDestroyers(lerQuantidade("Destroyers"));
         setCruzares(lerQuantidade("Cruzares"));
-        int linha, coluna;
-        for (int i = 0; i < submarinos; ++i)
-        {
-            limparConsole();
-            desenharMatriz(campo_setado);
-            std::cout << "Insira a linha do submarino " << i + 1 << ": ";
-            linha = lerCoordenadas();
-            std::cout << "Insira a coluna do submarino " << i + 1 << ": ";
-            coluna = lerCoordenadas();
-            campo_setado->setMatriz(linha, coluna, 'S');
-        }
-        for (int i = 0; i < destroyers; ++i)
-        {
-            limparConsole();
-            desenharMatriz(campo_setado);
-            std::cout << "Insira a linha do destroyer " << i + 1 << ": ";
-            linha = lerCoordenadas();
-            std::cout << "Insira a coluna do destroyer " << i + 1 << ": ";
-            coluna = lerCoordenadas();
-            campo_setado->setMatriz(linha, coluna, 'D');
-        }
-        for (int i = 0; i < cruzares; ++i)
-        {
-            limparConsole();
-            desenharMatriz(campo_setado);
-            std::cout << "Insira a linha do cruzeiro " << i + 1 << ": ";
-            linha = lerCoordenadas();
-            std::cout << "Insira a coluna do cruzeiro " << i + 1 << ": ";
-            coluna = lerCoordenadas();
-            campo_setado->setMatriz(linha, coluna, 'C');
-        }
+        inserirMapa("Submarinos", submarinos, 'S');
+        inserirMapa("Destroyers", destroyers, 'D');
+        inserirMapa("Cruzares", cruzares, 'C');
         if (campo_setado->getQuantidadeElementos() == 0){
             throw std::string("quantidade de elementos 0, jogo nao iniciado");
         }
@@ -161,14 +154,22 @@ public:
                 desenharMatriz(campo_player);
                 std::cout << "Escolha uma coordenada para lancar uma bomba:\n";
                 std::cout << "Linha: ";
-                std::cin >> linha;  
+                int linha, coluna;
+                try{
+                    linha = lerCoordenadas();
+                }catch(std::string& e){
+                    desistir();
+                }
                 std::cout << "Coluna: ";
-                std::cin >> coluna;
+                try{
+                    coluna = lerCoordenadas();
+                }catch(std::string& e){
+                    desistir();
+                }
                 --linha;
                 --coluna;
-                if (linha < 0 || coluna < 0){
-                    std::cout << "Desistiu? esse era o campo de batalha:\n";
-                    desenharMatriz(campo_setado);
+                if (linha <= 0 || coluna <= 0){
+                    desistir();
                     return;
                 }
                 char simbolo = campo_setado->getMatriz(linha, coluna);
