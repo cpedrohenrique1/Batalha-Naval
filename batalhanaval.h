@@ -47,25 +47,25 @@ public:
         std::cout << "\t2 - Creditos" << std::endl;
         std::cout << "\t3 - Sair" << std::endl;
     }
-    void desenharMatriz() const
+    void desenharMatriz(CampoDeBatalha* campo) const
     {
-        if (!campo_setado)
+        if (!campo)
         {
             throw std::string("Campo de batalha nao existe");
         }
-        for (int i = 0; i < campo_setado->getTamanho(); i++)
+        for (int i = 0; i < campo->getTamanho(); i++)
         {
             std::cout << "Linha " << i + 1 << "\t";
-            for (int j = 0; j < campo_setado->getTamanho(); j++)
+            for (int j = 0; j < campo->getTamanho(); j++)
             {
-                std::cout << campo_setado->getMatriz(i, j) << " ";
+                std::cout << campo->getMatriz(i, j) << " ";
             }
             std::cout << std::endl;
         }
     }
     int lerQuantidade(std::string entrada)
     {
-        std::cout << "Insira a quantidade de " + entrada << ': ';
+        std::cout << "Insira a quantidade de " + entrada << ": ";
         int variavel;
         std::cin >> variavel;
         return variavel;
@@ -119,7 +119,7 @@ public:
         for (int i = 0; i < submarinos; ++i)
         {
             limparConsole();
-            desenharMatriz();
+            desenharMatriz(campo_setado);
             std::cout << "Insira a linha do submarino " << i + 1 << ": ";
             linha = lerCoordenadas();
             std::cout << "Insira a coluna do submarino " << i + 1 << ": ";
@@ -129,7 +129,7 @@ public:
         for (int i = 0; i < destroyers; ++i)
         {
             limparConsole();
-            desenharMatriz();
+            desenharMatriz(campo_setado);
             std::cout << "Insira a linha do destroyer " << i + 1 << ": ";
             linha = lerCoordenadas();
             std::cout << "Insira a coluna do destroyer " << i + 1 << ": ";
@@ -139,17 +139,49 @@ public:
         for (int i = 0; i < cruzares; ++i)
         {
             limparConsole();
-            desenharMatriz();
+            desenharMatriz(campo_setado);
             std::cout << "Insira a linha do cruzeiro " << i + 1 << ": ";
             linha = lerCoordenadas();
             std::cout << "Insira a coluna do cruzeiro " << i + 1 << ": ";
             coluna = lerCoordenadas();
             campo_setado->setMatriz(linha, coluna, 'C');
         }
+        if (campo_setado->getQuantidadeElementos() == 0){
+            throw std::string("quantidade de elementos 0, jogo nao iniciado");
+        }
         limparConsole();
-        desenharMatriz();
+        std::cout << "Bom jogo!\n";
+        try{
+            if (campo_player){
+                delete campo_player;
+            }
+            campo_player = new CampoDeBatalha(campo_setado->getTamanho());
+            for (int i = 0; i < campo_setado->getTamanho() * campo_setado->getTamanho(); ++i){
+                limparConsole();
+                desenharMatriz(campo_player);
+                std::cout << "Escolha uma coordenada para lancar uma bomba:\n";
+                std::cout << "Linha: ";
+                std::cin >> linha;  
+                std::cout << "Coluna: ";
+                std::cin >> coluna;
+                --linha;
+                --coluna;
+                if (linha < 0 || coluna < 0){
+                    std::cout << "Desistiu? esse era o campo de batalha:\n";
+                    desenharMatriz(campo_setado);
+                    return;
+                }
+                char simbolo = campo_setado->getMatriz(linha, coluna);
+                if (simbolo == '_'){
+                    campo_player->setMatriz(linha, coluna, '*');
+                }else{
+                    campo_player->setMatriz(linha, coluna, simbolo);
+                }
+            }
+        }catch(std::bad_alloc& e){
+            throw std::string("nao foi possivel alocar memoria");
+        }
     }
-    
     void creditos()
     {
         std::cout << "Desenvolvido por: \n\tPedro Henrique Brito da Silva Miranda" << std::endl;

@@ -8,10 +8,12 @@ class CampoDeBatalha
 private:
     int tamanho;
     char **matriz;
+    int quantidade_elementos;
 
 public:
     CampoDeBatalha(int tamanho = 14) : tamanho(tamanho),
-                                       matriz(0)
+                                       matriz(0),
+                                       quantidade_elementos(0)
     {
         if (tamanho <= 0)
         {
@@ -30,24 +32,31 @@ public:
         }
     }
     char getMatriz(int linha, int coluna)const{
-        if (linha <= 0 || linha >= tamanho || coluna <= 0 || coluna >= tamanho)
+        if (linha < 0 || linha >= tamanho || coluna < 0 || coluna >= tamanho)
         {
             throw std::string("Posicao invalida");
         }
         return matriz[linha][coluna];
     }
     void setMatriz(int linha, int coluna, char simbolo){
-        if (linha <= 0 || linha >= tamanho || coluna <= 0 || coluna >= tamanho)
+        if (linha < 0 || linha >= tamanho || coluna < 0 || coluna >= tamanho)
         {
             throw std::string("Posicao invalida");
         }
         if (matriz[linha][coluna] != '_'){
             throw std::string("Ja possui um elemento nesta coordenada");
         }
+        if (matriz[linha][coluna] == '*'){
+            --quantidade_elementos;
+        }
+        ++quantidade_elementos;
         matriz[linha][coluna] = simbolo;
     }
     int getTamanho()const{
         return tamanho;
+    }
+    int getQuantidadeElementos()const{
+        return quantidade_elementos;
     }
     void resetMatriz(){
         if (matriz && tamanho){
@@ -57,6 +66,7 @@ public:
                 }
             }
         }
+        quantidade_elementos = 0;
     }
     void resetMatriz(int tamanho){
         if (tamanho <= 0){
