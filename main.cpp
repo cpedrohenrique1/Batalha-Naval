@@ -1,7 +1,7 @@
 #include "batalhanaval.h"
 
 int main(){
-    BatalhaNaval b;
+    BatalhaNaval b(9);
     try{
         b.start();
     }catch(std::string& e){

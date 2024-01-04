@@ -11,13 +11,14 @@ private:
     int submarinos;
     int destroyers;
     int cruzares;
-
+    int tentativas;
 public:
     BatalhaNaval(int tamanho = 14) : submarinos(0),
                                      destroyers(0),
                                      cruzares(0),
                                      campo_player(0),
-                                     campo_setado(0)
+                                     campo_setado(0),
+                                     tentativas(0)
     {
         try
         {
@@ -64,9 +65,15 @@ public:
         }
     }
     void desistir(){
+        if (!campo_player || !campo_setado){
+            throw std::string("campos nao setados");
+        }
         limparConsole();
-        std::cout << "Desistiu? esse era o campo de batalha:\n";
+        std::cout << "Desistiu? Essas foram as suas tentativas: " << tentativas << '\n';
+        std::cout << "esse era o campo de batalha perfeito\n";
         desenharMatriz(campo_setado);
+        std::cout << "Esse foi seu jogo:\n";
+        desenharMatriz(campo_player);
     }
     int lerQuantidade(std::string entrada)
     {
@@ -126,6 +133,18 @@ public:
             campo_setado->setMatriz(linha, coluna, simbolo);
         }
     }
+    void finalizar(){
+        if (!campo_player || !campo_setado){
+            throw std::string("campos nao setados");
+        }
+        limparConsole();
+        std::cout << "Parabens!\nVoce finalizou o game!\n";
+        std::cout << "Essas foram suas tentativas: " << tentativas << '\n';
+        std::cout << "Esse foi seu jogo:\n";
+        desenharMatriz(campo_player);
+        std::cout << "Esse seria o jogo perfeito:\n";
+        desenharMatriz(campo_setado);
+    }
     void jogar()
     {
         if (!campo_setado){
@@ -149,7 +168,7 @@ public:
                 delete campo_player;
             }
             campo_player = new CampoDeBatalha(campo_setado->getTamanho());
-            for (int i = 0; i < campo_setado->getTamanho() * campo_setado->getTamanho(); ++i){
+            for (int i = 0; i < campo_setado->getTamanho() * campo_setado->getTamanho() && campo_player->getQuantidadeElementos() < campo_setado->getQuantidadeElementos(); ++i){
                 limparConsole();
                 desenharMatriz(campo_player);
                 std::cout << "Escolha uma coordenada para lancar uma bomba:\n";
@@ -159,19 +178,18 @@ public:
                     linha = lerCoordenadas();
                 }catch(std::string& e){
                     desistir();
+                    return;
                 }
                 std::cout << "Coluna: ";
                 try{
                     coluna = lerCoordenadas();
                 }catch(std::string& e){
                     desistir();
+                    return;
                 }
                 --linha;
                 --coluna;
-                if (linha <= 0 || coluna <= 0){
-                    desistir();
-                    return;
-                }
+                ++tentativas;
                 char simbolo = campo_setado->getMatriz(linha, coluna);
                 if (simbolo == '_'){
                     campo_player->setMatriz(linha, coluna, '*');
@@ -179,6 +197,7 @@ public:
                     campo_player->setMatriz(linha, coluna, simbolo);
                 }
             }
+            finalizar();
         }catch(std::bad_alloc& e){
             throw std::string("nao foi possivel alocar memoria");
         }
