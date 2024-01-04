@@ -1,3 +1,3 @@
 # Batalha-Naval
-Jogo batalha naval em c++
-Versão 0.8
+Jogo batalha naval em c++ executando no terminal
+Versão 0.5
