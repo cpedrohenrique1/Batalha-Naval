@@ -35,6 +35,9 @@ public:
         {
             delete campo_setado;
         }
+        if (campo_player){
+            delete campo_player;
+        }
     }
     void limparConsole()
     {
@@ -61,13 +64,10 @@ public:
             {
                 std::cout << campo->getMatriz(i, j) << " ";
             }
-            std::cout << std::endl;
+            std::cout << char(10);
         }
     }
     void desistir(){
-        if (!campo_player || !campo_setado){
-            throw std::string("campos nao setados");
-        }
         limparConsole();
         std::cout << "Desistiu? Essas foram as suas tentativas: " << tentativas << '\n';
         std::cout << "esse era o campo de batalha perfeito\n";
@@ -90,29 +90,56 @@ public:
         {
             throw std::string("Linha invalida");
         }
-        return coordenada;
+        return coordenada - 1;
     }
     void setSubmarinos(int submarino)
     {
+        if (!campo_setado){
+            throw std::string("campo nao existe");
+        }
         if (submarino < 0)
         {
             throw std::string("Nao pode ser negativo");
+        }
+        if (submarino > campo_setado->getTamanho() * campo_setado->getTamanho()){
+            throw std::string("Nao pode ser maior que a quantidade de slots possiveis");
+        }
+        if (campo_setado->getTamanho() <= campo_setado->getQuantidadeElementos()){
+            throw std::string("Nao pode mais ser submetido submarinos, ja esta cheio");
         }
         this->submarinos = submarino;
     }
     void setDestroyers(int destroyer)
     {
+        if (!campo_setado){
+            throw std::string("campo nao existe");
+        }
         if (destroyer < 0)
         {
             throw std::string("Nao pode ser negativo");
+        }
+        if (destroyer > campo_setado->getTamanho() * campo_setado->getTamanho()){
+            throw std::string("Nao pode ser maior que a quantidade de slots possiveis");
+        }
+        if (campo_setado->getTamanho() <= campo_setado->getQuantidadeElementos()){
+            throw std::string("Nao pode ser submetido destroyers, ja esta cheio");
         }
         this->destroyers = destroyer;
     }
     void setCruzares(int cruzados)
     {
+        if (!campo_setado){
+            throw std::string("Nao existe campo");
+        }
         if (cruzados < 0)
         {
             throw std::string("Nao pode ser negativo");
+        }
+        if (cruzados > campo_setado->getTamanho() * campo_setado->getTamanho()){
+            throw std::string("Nao pode ser maior que a quantidade de slots possiveis");
+        }
+        if (campo_setado->getTamanho() <= campo_setado->getQuantidadeElementos()){
+            throw std::string("Nao pode ser submetido mais cruzares, ja esta cheio");
         }
         this->cruzares = cruzados;
     }
@@ -128,15 +155,10 @@ public:
             linha = lerCoordenadas();
             std::cout << "Insira a coluna do " << entrada << ' ' << i + 1 << ": ";
             coluna = lerCoordenadas();
-            --linha;
-            --coluna;
             campo_setado->setMatriz(linha, coluna, simbolo);
         }
     }
     void finalizar(){
-        if (!campo_player || !campo_setado){
-            throw std::string("campos nao setados");
-        }
         limparConsole();
         std::cout << "Parabens!\nVoce finalizou o game!\n";
         std::cout << "Essas foram suas tentativas: " << tentativas << '\n';
@@ -150,7 +172,9 @@ public:
         if (!campo_setado){
             throw std::string("Campo nao foi setado");
         }
-        campo_setado->resetMatriz();
+        if (campo_setado->getQuantidadeElementos() != 0){
+            campo_setado->resetMatriz();
+        }
         limparConsole();
         setSubmarinos(lerQuantidade("Submarinos"));
         setDestroyers(lerQuantidade("Destroyers"));
@@ -159,17 +183,17 @@ public:
         inserirMapa("Destroyers", destroyers, 'D');
         inserirMapa("Cruzares", cruzares, 'C');
         if (campo_setado->getQuantidadeElementos() == 0){
-            throw std::string("quantidade de elementos 0, jogo nao iniciado");
+            throw std::string("Quantidade de elementos 0, jogo nao iniciado");
         }
         limparConsole();
-        std::cout << "Bom jogo!\n";
         try{
             if (campo_player){
                 delete campo_player;
             }
             campo_player = new CampoDeBatalha(campo_setado->getTamanho());
-            for (int i = 0; i < campo_setado->getTamanho() * campo_setado->getTamanho() && campo_player->getQuantidadeElementos() < campo_setado->getQuantidadeElementos(); ++i){
+            while (campo_player->getQuantidadeElementos() != campo_setado->getQuantidadeElementos()){
                 limparConsole();
+                std::cout << "Bom jogo!" << char(10);
                 desenharMatriz(campo_player);
                 std::cout << "Escolha uma coordenada para lancar uma bomba:\n";
                 std::cout << "Linha: ";
@@ -187,14 +211,16 @@ public:
                     desistir();
                     return;
                 }
-                --linha;
-                --coluna;
                 ++tentativas;
                 char simbolo = campo_setado->getMatriz(linha, coluna);
-                if (simbolo == '_'){
-                    campo_player->setMatriz(linha, coluna, '*');
-                }else{
-                    campo_player->setMatriz(linha, coluna, simbolo);
+                try{
+                    if (simbolo == '_'){
+                        campo_player->setMatriz(linha, coluna, '*');
+                    }else{
+                        campo_player->setMatriz(linha, coluna, simbolo);
+                    }
+                }catch(std::string& e){
+                    std::cout << e << char(10);
                 }
             }
             finalizar();
@@ -204,7 +230,7 @@ public:
     }
     void creditos()
     {
-        std::cout << "Desenvolvido por: \n\tPedro Henrique Brito da Silva Miranda" << std::endl;
+        std::cout << "Desenvolvido por: \n\tPedro Henrique B S Miranda" << std::endl;
     }
     void start()
     {
